@@ -1,75 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Avatar,
-  Paper,
-  Typography,
-  Link,
-  TextField,
-  Button,
-} from "@mui/material";
+import { Box, Avatar, Paper, Typography, Link, Container } from "@mui/material";
 import { useRouter } from "next/router";
 import Grid from "@mui/material/Grid";
-import { stringAvatar } from "../../utils";
-import styles from "../../styles/styles";
 
-const MessageItem = ({ text }) => (
-  <Typography style={styles.recipientChatBubble}>{text}</Typography>
-);
-
-const CoversationList = ({ list, fetchMessages, setConId }) => {
-  return (
-    <Box>
-      {list?.length > 0 ? (
-        list.map((item) => (
-          <Box key={item.id}>
-            <Button>
-              <Paper
-                variant="outlined"
-                square
-                sx={{ width: "90%", mx: "auto", p: "5px" }}
-                onClick={() => {
-                  fetchMessages(item.id);
-                  setConId(item.id);
-                }}
-              >
-                <Grid
-                  container
-                  key={item.id}
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Grid item xs={3}>
-                    <Avatar
-                      {...stringAvatar(item.lastMessage.sender.name)}
-                      sx={{ m: "auto" }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography fontWeight="bold">
-                      {item.lastMessage.sender.name}
-                    </Typography>
-                    <Box>{item.lastMessage.text}</Box>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Box>
-                      {new Date(item.lastMessage.createdAt).toLocaleDateString(
-                        "en-us",
-                        { weekday: "long" }
-                      )}
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-            </Button>
-          </Box>
-        ))
-      ) : (
-        <Box>walao</Box>
-      )}
-    </Box>
-  );
-};
+import MessageItem from "../../components/MessageTextItem";
+import CoversationList from "../../components/ConservationList";
+import MessageBox from "../../components/MessageBox";
+import NavigateButton from "../../components/NavigateButton";
+import { isUndefined } from "lodash";
 
 export default function Coversation() {
   const router = useRouter();
@@ -77,10 +15,10 @@ export default function Coversation() {
   const id = query?.account_id?.toString();
 
   const [accounts, setAccounts] = useState();
-  const [textMessage, setTextMessage] = useState("");
+  const [textMessage, setTextMessage] = useState();
   const [list, setList] = useState([]);
   const [messages, setMessages] = useState();
-  const [conId, setConId] = useState();
+  const [conversationId, setConversationId] = useState();
 
   const fetchCoversationList = useCallback(() => {
     return fetch(`/api/account/${id}/conversations?pageSize=10`)
@@ -90,21 +28,21 @@ export default function Coversation() {
       })
       .then((data) => {
         if (data?.rows) {
-          return setList(data.rows);
+          setList(data.rows);
         }
       });
   }, [id]);
 
   const fetchMessages = useCallback(
-    (conversationId) => {
-      return fetch(`/api/account/${id}/conversation/${conversationId}/messages`)
+    (conId) => {
+      return fetch(`/api/account/${id}/conversation/${conId}/messages`)
         .then((res) => {
           if (res.ok) return res.json();
           return null;
         })
         .then((data) => {
           if (data?.rows) {
-            return setMessages(data.rows);
+            return setMessages(data.rows.reverse());
           }
         });
     },
@@ -123,9 +61,9 @@ export default function Coversation() {
   }, [id]);
 
   const postMessages = useCallback(
-    (text, conservationId) => {
+    (text) => {
       return fetch(
-        `/api/account/${id}/conversation/${conservationId}/messages`,
+        `/api/account/${id}/conversation/${conversationId}/messages`,
         {
           method: "POST",
           headers: {
@@ -133,9 +71,12 @@ export default function Coversation() {
           },
           body: JSON.stringify({ text }),
         }
-      ).then(() => fetchMessages(conservationId));
+      ).then(() => {
+        fetchMessages(conversationId);
+        setTextMessage("");
+      });
     },
-    [fetchMessages, id]
+    [conversationId, fetchMessages, id]
   );
 
   useEffect(() => {
@@ -145,45 +86,41 @@ export default function Coversation() {
   }, [fetchAccounts, id]);
 
   useEffect(() => {
-    if (id !== undefined) {
+    if (!isUndefined(id)) {
       fetchCoversationList();
     }
   }, [fetchCoversationList, id]);
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Link href="/">Back</Link>
+    <Container>
       <Grid container>
         <Grid item xs={3}>
           <Paper variant="outlined" square sx={{ height: "100vh" }}>
+            <NavigateButton href="/" />
             <CoversationList
               list={list}
               fetchMessages={fetchMessages}
-              setConId={setConId}
+              setConversationId={setConversationId}
             />
           </Paper>
         </Grid>
-        <Grid item xs={9}>
-          {messages?.map((item) => (
-            // eslint-disable-next-line react/jsx-key
-            <MessageItem text={item.text} />
-          ))}
-          <TextField
-            id="outlined-basic"
-            label="Outlined"
-            variant="outlined"
-            onChange={(e) => {
-              setTextMessage(e.target.value);
-            }}
-          />
-          <Button
-            variant="text"
-            onClick={() => postMessages(textMessage, conId)}
-          >
-            Text
-          </Button>
+        <Grid item xs={9} padding="16px">
+          {isUndefined(conversationId) ? (
+            <Container style={{ textAlign: "center" }}>
+              <Typography color="#777777">Nothing to show</Typography>
+            </Container>
+          ) : (
+            <MessageBox
+              messages={messages}
+              setTextMessage={setTextMessage}
+              postMessages={postMessages}
+              accountId={id}
+              textMessage={textMessage}
+              conversationId={conversationId}
+            />
+          )}
         </Grid>
       </Grid>
-    </Box>
+    </Container>
   );
 }
