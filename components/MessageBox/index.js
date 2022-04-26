@@ -1,7 +1,7 @@
 import React from "react";
-import { TextField, Button, Stack } from "@mui/material";
-import { useRouter } from "next/router";
-import Grid from "@mui/material/Grid";
+import { TextField, Button, Stack, Box } from "@mui/material";
+
+import Send from "@mui/icons-material/Send";
 
 import MessageItem from "../MessageTextItem";
 
@@ -13,7 +13,7 @@ const BaseMessageBox = ({
   textMessage,
   conversationId,
 }) => (
-  <>
+  <Box padding="16px">
     {messages?.map((item) => (
       <MessageItem
         key={item.id}
@@ -33,14 +33,16 @@ const BaseMessageBox = ({
           setTextMessage(e.target.value);
         }}
       />
+
       <Button
-        variant="text"
+        variant="contained"
         onClick={() => postMessages(textMessage, conversationId)}
+        endIcon={<Send />}
       >
         SEND
       </Button>
     </Stack>
-  </>
+  </Box>
 );
 
 export default BaseMessageBox;
