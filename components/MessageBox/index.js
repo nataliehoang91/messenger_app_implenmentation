@@ -1,14 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Avatar,
-  Paper,
-  Typography,
-  Link,
-  TextField,
-  Button,
-  Stack,
-} from "@mui/material";
+import React from "react";
+import { TextField, Button, Stack } from "@mui/material";
 import { useRouter } from "next/router";
 import Grid from "@mui/material/Grid";
 
@@ -19,6 +10,8 @@ const BaseMessageBox = ({
   postMessages,
   messages,
   accountId,
+  textMessage,
+  conversationId,
 }) => (
   <>
     {messages?.map((item) => (

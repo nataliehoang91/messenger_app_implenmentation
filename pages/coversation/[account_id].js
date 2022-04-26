@@ -1,20 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Avatar,
-  Paper,
-  Typography,
-  Link,
-  TextField,
-  Button,
-  Stack,
-} from "@mui/material";
+import { Box, Avatar, Paper, Typography, Link, Container } from "@mui/material";
 import { useRouter } from "next/router";
 import Grid from "@mui/material/Grid";
 
 import MessageItem from "../../components/MessageTextItem";
 import CoversationList from "../../components/ConservationList";
 import MessageBox from "../../components/MessageBox";
+import NavigateButton from "../../components/NavigateButton";
 import { isUndefined } from "lodash";
 
 export default function Coversation() {
@@ -36,7 +28,7 @@ export default function Coversation() {
       })
       .then((data) => {
         if (data?.rows) {
-          return setList(data.rows);
+          setList(data.rows);
         }
       });
   }, [id]);
@@ -69,19 +61,22 @@ export default function Coversation() {
   }, [id]);
 
   const postMessages = useCallback(
-    (text, conId) => {
-      return fetch(`/api/account/${id}/conversation/${conId}/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text }),
-      }).then(() => {
-        fetchMessages(conId);
-        setTextMessage();
+    (text) => {
+      return fetch(
+        `/api/account/${id}/conversation/${conversationId}/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        }
+      ).then(() => {
+        fetchMessages(conversationId);
+        setTextMessage("");
       });
     },
-    [fetchMessages, id]
+    [conversationId, fetchMessages, id]
   );
 
   useEffect(() => {
@@ -91,17 +86,17 @@ export default function Coversation() {
   }, [fetchAccounts, id]);
 
   useEffect(() => {
-    if (id !== undefined) {
+    if (!isUndefined(id)) {
       fetchCoversationList();
     }
   }, [fetchCoversationList, id]);
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Link href="/">Back</Link>
+    <Container>
       <Grid container>
         <Grid item xs={3}>
           <Paper variant="outlined" square sx={{ height: "100vh" }}>
+            <NavigateButton href="/" />
             <CoversationList
               list={list}
               fetchMessages={fetchMessages}
@@ -110,14 +105,22 @@ export default function Coversation() {
           </Paper>
         </Grid>
         <Grid item xs={9} padding="16px">
-          <MessageBox
-            messages={messages}
-            setTextMessage={setTextMessage}
-            postMessages={postMessages}
-            accountId={id}
-          />
+          {isUndefined(conversationId) ? (
+            <Container style={{ textAlign: "center" }}>
+              <Typography color="#777777">Nothing to show</Typography>
+            </Container>
+          ) : (
+            <MessageBox
+              messages={messages}
+              setTextMessage={setTextMessage}
+              postMessages={postMessages}
+              accountId={id}
+              textMessage={textMessage}
+              conversationId={conversationId}
+            />
+          )}
         </Grid>
       </Grid>
-    </Box>
+    </Container>
   );
 }

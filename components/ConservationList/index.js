@@ -1,17 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  Box,
-  Paper,
-  Typography,
-  Link,
-  TextField,
-  Button,
-  Stack,
-} from "@mui/material";
-import { useRouter } from "next/router";
-import Grid from "@mui/material/Grid";
+import React from "react";
+import { Box, Typography, Container, Button, Stack } from "@mui/material";
 
-import { stringAvatar } from "../../utils";
 import Avatar from "../Avatar";
 
 const BaseCoversationList = ({ list, fetchMessages, setConversationId }) => {
@@ -29,40 +18,45 @@ const BaseCoversationList = ({ list, fetchMessages, setConversationId }) => {
                   setConversationId(item.id);
                 }}
               >
-                <Grid container key={item.id}>
-                  <Grid item xs={10}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Avatar
-                        sizeProps={{ sx: { width: 56, height: 56 } }}
-                        senderName={item.lastMessage.sender.name}
-                      />
-                      <Stack
-                        direction="column"
-                        spacing={1}
-                        alignItems="flex-start"
-                      >
-                        <Typography fontWeight="bold">
-                          {item.lastMessage.sender.name}
-                        </Typography>
-                        <Box>{item.lastMessage.text}</Box>
-                      </Stack>
+                <Stack
+                  direction="row"
+                  key={item.id}
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Avatar
+                      sizeProps={{ sx: { width: 56, height: 56 } }}
+                      senderName={item.lastMessage.sender.name}
+                    />
+                    <Stack
+                      direction="column"
+                      alignItems="flex-start"
+                      spacing={0.5}
+                    >
+                      <Typography fontWeight="bold" color="#188f74">
+                        {item.lastMessage.sender.name}
+                      </Typography>
+                      <Typography color="#777777" fontSize={12}>
+                        {item.lastMessage.text}
+                      </Typography>
                     </Stack>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Box>
-                      {new Date(item.lastMessage.createdAt).toLocaleDateString(
-                        "en-us",
-                        { weekday: "long" }
-                      )}
-                    </Box>
-                  </Grid>
-                </Grid>
+                  </Stack>
+                  <Typography color="#777777" fontSize={12}>
+                    {new Date(item.lastMessage.createdAt).toLocaleDateString(
+                      "en-us",
+                      { weekday: "long" }
+                    )}
+                  </Typography>
+                </Stack>
               </Box>
             </Button>
           </Box>
         ))
       ) : (
-        <Box>walao</Box>
+        <Container style={{ textAlign: "center" }}>
+          <Typography color="#777777">Nothing to show</Typography>
+        </Container>
       )}
     </Box>
   );
