@@ -10,7 +10,6 @@ import { stringAvatar, formatDateTime } from "../../utils";
 import styles from "../../styles/styles";
 
 const BaseMessageItem = ({ message, accountId, senderId }) => {
-  console.log({ accountId, senderId });
   const chatBubbleStyles =
     accountId === senderId
       ? {

@@ -14,6 +14,8 @@ import Grid from "@mui/material/Grid";
 
 import MessageItem from "../../components/MessageTextItem";
 import CoversationList from "../../components/ConservationList";
+import MessageBox from "../../components/MessageBox";
+import { isUndefined } from "lodash";
 
 export default function Coversation() {
   const router = useRouter();
@@ -108,31 +110,12 @@ export default function Coversation() {
           </Paper>
         </Grid>
         <Grid item xs={9} padding="16px">
-          {messages?.map((item) => (
-            // eslint-disable-next-line react/jsx-key
-            <MessageItem
-              message={item}
-              accountId={id}
-              senderId={item.sender.id.toString()}
-            />
-          ))}
-          <Stack direction="row" spacing={2}>
-            <TextField
-              id="outlined-basic"
-              label="Type your messages..."
-              variant="outlined"
-              style={{ width: "100%" }}
-              onChange={(e) => {
-                setTextMessage(e.target.value);
-              }}
-            />
-            <Button
-              variant="text"
-              onClick={() => postMessages(textMessage, conversationId)}
-            >
-              SEND
-            </Button>
-          </Stack>
+          <MessageBox
+            messages={messages}
+            setTextMessage={setTextMessage}
+            postMessages={postMessages}
+            accountId={id}
+          />
         </Grid>
       </Grid>
     </Box>

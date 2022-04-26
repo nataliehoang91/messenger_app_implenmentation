@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, Paper, Typography, Link, TextField, Button } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Typography,
+  Link,
+  TextField,
+  Button,
+  Stack,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import Grid from "@mui/material/Grid";
 
@@ -12,32 +20,35 @@ const BaseCoversationList = ({ list, fetchMessages, setConversationId }) => {
       {list?.length > 0 ? (
         list.map((item) => (
           <Box key={item.id}>
-            <Button>
-              <Paper
-                variant="outlined"
-                square
-                sx={{ width: "90%", mx: "auto", p: "5px" }}
+            <Button variant="outlined" style={{ width: "100%" }}>
+              <Box
+                padding="16px 4px"
+                style={{ width: "100%" }}
                 onClick={() => {
                   fetchMessages(item.id);
                   setConversationId(item.id);
                 }}
               >
-                <Grid
-                  container
-                  key={item.id}
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Grid item xs={3}>
-                    <Avatar senderName={item.lastMessage.sender.name} />
+                <Grid container key={item.id}>
+                  <Grid item xs={10}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Avatar
+                        sizeProps={{ sx: { width: 56, height: 56 } }}
+                        senderName={item.lastMessage.sender.name}
+                      />
+                      <Stack
+                        direction="column"
+                        spacing={1}
+                        alignItems="flex-start"
+                      >
+                        <Typography fontWeight="bold">
+                          {item.lastMessage.sender.name}
+                        </Typography>
+                        <Box>{item.lastMessage.text}</Box>
+                      </Stack>
+                    </Stack>
                   </Grid>
-                  <Grid item xs={6}>
-                    <Typography fontWeight="bold">
-                      {item.lastMessage.sender.name}
-                    </Typography>
-                    <Box>{item.lastMessage.text}</Box>
-                  </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={2}>
                     <Box>
                       {new Date(item.lastMessage.createdAt).toLocaleDateString(
                         "en-us",
@@ -46,7 +57,7 @@ const BaseCoversationList = ({ list, fetchMessages, setConversationId }) => {
                     </Box>
                   </Grid>
                 </Grid>
-              </Paper>
+              </Box>
             </Button>
           </Box>
         ))
