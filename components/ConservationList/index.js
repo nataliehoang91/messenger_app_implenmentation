@@ -57,8 +57,14 @@ const BaseCoversationList = ({ list, fetchMessages, setConversationId }) => {
           </Box>
         ))
       ) : (
-        <Container style={{ textAlign: "center" }}>
-          <Typography color="#777777">Nothing to show</Typography>
+        <Container
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography color="#777777">No conservation yet </Typography>
         </Container>
       )}
     </Box>
