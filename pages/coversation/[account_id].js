@@ -106,7 +106,7 @@ export default function Coversation() {
         justifyContent: "space-evenly",
       }}
     >
-      <Grid item xs={3}>
+      <Grid item xs={12} md={3}>
         <Box>
           <ActionBarBtn href="/" />
           <CoversationList
@@ -117,11 +117,20 @@ export default function Coversation() {
         </Box>
       </Grid>
       <Divider orientation="vertical" flexItem />
-      <Grid item xs={8}>
+      <Grid item xs={12} md={8}>
         <>
           {isUndefined(conversationId) ? (
-            <Container style={{ textAlign: "center" }}>
-              <Typography color="#777777">Nothing to show</Typography>
+            <Container
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100vh",
+              }}
+            >
+              <Typography color="#777777">
+                Select a chat to start messaging
+              </Typography>
             </Container>
           ) : (
             <MessageBox
