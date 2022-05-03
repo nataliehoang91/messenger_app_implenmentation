@@ -8,7 +8,7 @@ const BaseCoversationList = ({ list, fetchMessages, setConversationId }) => {
     <Box>
       {list?.length > 0 ? (
         list.map((item) => (
-          <Box key={item.id}>
+          <Box key={item.id} mb="20px">
             <Button
               variant="outlined"
               style={{ width: "100%", padding: "0 4px" }}
