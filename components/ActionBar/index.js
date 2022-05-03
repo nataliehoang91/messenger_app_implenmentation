@@ -4,7 +4,7 @@ import { Stack, TextField } from "@mui/material";
 import CreateNewBtn from "../CreateNew";
 import BackButton from "../RoutingButton";
 
-const ActionBarBtn = ({ href }) => (
+const ActionBarBtn = ({ href, accountId, fetchCoversationList }) => (
   <Stack
     direction="row"
     spacing={1}
@@ -22,7 +22,10 @@ const ActionBarBtn = ({ href }) => (
         setTextMessage(e.target.value);
       }}
     />
-    <CreateNewBtn />
+    <CreateNewBtn
+      accountId={accountId}
+      fetchCoversationList={fetchCoversationList}
+    />
   </Stack>
 );
 

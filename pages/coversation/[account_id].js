@@ -24,9 +24,9 @@ export default function Coversation() {
   const [accounts, setAccounts] = useState();
   const [textMessage, setTextMessage] = useState();
   const [list, setList] = useState([]);
-  const [messages, setMessages] = useState();
+  const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState();
-
+  const [prevCursor, setPrevCursor] = useState("");
   const fetchCoversationList = useCallback(() => {
     return fetch(`/api/account/${id}/conversations?pageSize=10`)
       .then((res) => {
@@ -40,6 +40,32 @@ export default function Coversation() {
       });
   }, [id]);
 
+  const loadMore = useCallback(
+    (conId, cursor) => {
+      if (!prevCursor) return;
+      return fetch(
+        `/api/account/${id}/conversation/${conId}/messages?cursor=${cursor}`
+      )
+        .then((res) => {
+          if (res.ok) return res.json();
+          return null;
+        })
+        .then((data) => {
+          if (data?.rows) {
+            if (data?.rows.length === 0) return;
+            if (data.sort === "NEWEST_FIRST") {
+              setPrevCursor(data.cursor_prev);
+              setMessages([...data.rows, ...messages]);
+            } else {
+              setPrevCursor(data.cursor_next);
+              setMessages([...messages, ...data.rows.reverse()]);
+            }
+          }
+        });
+    },
+    [id, messages, prevCursor]
+  );
+
   const fetchMessages = useCallback(
     (conId) => {
       return fetch(`/api/account/${id}/conversation/${conId}/messages`)
@@ -49,7 +75,8 @@ export default function Coversation() {
         })
         .then((data) => {
           if (data?.rows) {
-            return setMessages(data.rows.reverse());
+            setPrevCursor(data.cursor_prev);
+            return setMessages([...data.rows, ...messages]);
           }
         });
     },
@@ -78,13 +105,24 @@ export default function Coversation() {
           },
           body: JSON.stringify({ text }),
         }
-      ).then(() => {
-        fetchMessages(conversationId);
-        setTextMessage("");
-      });
+      )
+        .then((res) => {
+          if (res.ok) return res.json();
+          return null;
+        })
+        .then((data) => {
+          setMessages([data, ...messages]);
+          setTextMessage("");
+        });
     },
-    [conversationId, fetchMessages, id]
+    [conversationId, id, messages]
   );
+
+  useEffect(() => {
+    setMessages([]);
+    setPrevCursor(null);
+    console.log(conversationId);
+  }, [conversationId]);
 
   useEffect(() => {
     if (id) {
@@ -96,7 +134,7 @@ export default function Coversation() {
     if (!isUndefined(id)) {
       fetchCoversationList();
     }
-  }, [fetchCoversationList, id]);
+  }, [fetchCoversationList, id, messages[0]?.id]);
 
   return (
     <Grid
@@ -108,7 +146,11 @@ export default function Coversation() {
     >
       <Grid item xs={12} md={3}>
         <Box>
-          <ActionBarBtn href="/" />
+          <ActionBarBtn
+            href="/"
+            fetchCoversationList={fetchCoversationList}
+            accountId={id}
+          />
           <CoversationList
             list={list}
             fetchMessages={fetchMessages}
@@ -140,6 +182,7 @@ export default function Coversation() {
               accountId={id}
               textMessage={textMessage}
               conversationId={conversationId}
+              loadMore={() => loadMore(conversationId, prevCursor)}
             />
           )}
         </>

@@ -59,6 +59,7 @@ export default function Home() {
                 <Link
                   underline="none"
                   sx={{ width: "100%", height: "100%", display: "block" }}
+                  target="_blank"
                 >
                   <AccountItem
                     email={`${item.name.replace(/ /g, "")}@domain.com`}
